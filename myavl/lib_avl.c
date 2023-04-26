@@ -11,10 +11,22 @@ struct avl_t *cria_avl() {
     a->raiz = NULL;
 }
 
-// Retorna um ponteiro para o nó que contém a chave chave.
-static struct no *bb_recursiva(struct no *n, int chave) {
-    fprintf("bb_recursiva: não implementado");
-    exit(1);
+static void insere_r(struct no *atual, struct no *novo) {
+    if (novo->chave < atual->chave) {
+        if (!atual->esq) {
+            atual->esq = novo;
+            novo->pai = atual;
+            return;
+        }
+        insere_r(atual->esq, novo);
+    } else {
+        if (!atual->dir) {
+            atual->dir = novo;
+            novo->pai = atual;
+            return;
+        }
+        insere_r(atual->dir, novo);
+    }
 }
 
 int insere_avl(struct avl_t *avl, int chave) {
