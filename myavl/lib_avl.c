@@ -3,12 +3,12 @@
 #include "lib_avl.h"
 
 struct avl_t *cria_avl() {
-    struct avl_t *a = (struct avl_t*)calloc(1, sizeof(struct avl_t));
-    if (!a)
+    struct avl_t *avl = (struct avl_t*)calloc(1, sizeof(struct avl_t));
+    if (!avl)
         return NULL;
 
-    a->h = 0;
-    a->raiz = NULL;
+    avl->h = 0;
+    avl->raiz = NULL;
 }
 
 static void insere_r(struct no *atual, struct no *novo) {
@@ -30,14 +30,19 @@ static void insere_r(struct no *atual, struct no *novo) {
 }
 
 int insere_avl(struct avl_t *avl, int chave) {
-    fprintf("insere_avl: não implementado");
-    exit(1);
     struct no *n = (struct no*)calloc(1, sizeof(struct no));
     if (!n)
-        return NULL;
+        return 0;
 
     no->chave = chave;
-    no->
+    no->pai = NULL;
+    no->esq = NULL;
+    no->dir = NULL;
+
+    insere_r(avl->raiz, no);
+
+    fprintf("balanceamento na inserção não implementado\n");
+    exit(1);
 
     return 1;
 }
