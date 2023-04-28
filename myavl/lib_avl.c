@@ -11,6 +11,8 @@ struct avl_t *cria_avl() {
     avl->raiz = NULL;
 }
 
+
+
 static void insere_r(struct no *atual, struct no *novo) {
     if (novo->chave < atual->chave) {
         if (!atual->esq) {
@@ -34,10 +36,10 @@ int insere_avl(struct avl_t *avl, int chave) {
     if (!n)
         return 0;
 
-    no->chave = chave;
-    no->pai = NULL;
-    no->esq = NULL;
-    no->dir = NULL;
+    n->chave = chave;
+    n->pai = NULL;
+    n->esq = NULL;
+    n->dir = NULL;
 
     insere_r(avl->raiz, no);
 
