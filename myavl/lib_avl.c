@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "lib_avl.h"
 
-struct avl_t *cria_avl() {
-    struct avl_t *avl = (struct avl_t*)calloc(1, sizeof(struct avl_t));
+struct Avl *cria_avl() {
+    struct Avl *avl = (struct Avl*)calloc(1, sizeof(struct Avl));
     if (!avl)
         return NULL;
 
@@ -11,11 +11,11 @@ struct avl_t *cria_avl() {
     return avl;
 }
 
-int avl_vazia(struct avl_t *avl) {
+int avl_vazia(struct Avl *avl) {
     return avl->raiz == NULL;
 }
 
-static void em_ordem_r(struct no *n, int nivel) {
+static void em_ordem_r(struct No *n, int nivel) {
     if (!n)
         return;
     em_ordem_r(n->esq, nivel + 1);
@@ -23,12 +23,27 @@ static void em_ordem_r(struct no *n, int nivel) {
     em_ordem_r(n->dir, nivel + 1);
 }
 
-void imprime_em_ordem(struct avl_t *avl) {
+void imprime_em_ordem(struct Avl *avl) {
     em_ordem_r(avl->raiz, 0);
 }
 
-static void rot_esq(struct avl_t *avl, struct no *x) {
-    struct no *y = x->dir;
+// Devolve a altura de um dado nó da árvore. Considera que um nó sem filhos
+// tem altura 0, e consequentemente um NULL tem altura -1.
+static int altura_r(struct No *n) {
+    if (!n)
+        return -1;
+    int e = altura_r(n->esq);
+    int d = altura_r(n->dir);
+    return e > d ? e+1 : d+1;
+}
+
+// TODO: se possível, remover essa função porque ela é paia
+static int no_balanceado(struct No *n) {
+    return abs(altura_r(n->esq) - altura_r(n->dir)) <= 1;
+}
+
+static void rot_esq(struct Avl *avl, struct No *x) {
+    struct No *y = x->dir;
     x->dir = y->esq;
 
     if (y->esq)
@@ -48,8 +63,8 @@ static void rot_esq(struct avl_t *avl, struct no *x) {
     x->pai = y;
 }
 
-static void rot_dir(struct avl_t *avl, struct no *x) {
-    struct no *y = x->esq;
+static void rot_dir(struct Avl *avl, struct No *x) {
+    struct No *y = x->esq;
     x->esq = y->dir;
 
     if (y->dir)
@@ -69,17 +84,7 @@ static void rot_dir(struct avl_t *avl, struct no *x) {
     x->pai = y;
 }
 
-static int no_balanceado(struct no *n) {
-    if (!n->esq && !n->dir)
-        return 1;
-    if (!n->esq)
-        return n->dir->h == 0;
-    if (!n->dir)
-        return n->esq->h == 0;
-    return abs(n->esq->h - n->dir->h) <= 1;
-}
-
-static void insere_r(struct no *atual, struct no *novo) {
+static void insere_r(struct No *atual, struct No *novo) {
     if (novo->chave < atual->chave) {
         if (!atual->esq) {
             atual->esq = novo;
@@ -97,38 +102,34 @@ static void insere_r(struct no *atual, struct no *novo) {
     }
 }
 
+// OBS: Teoricamente essa função não tem mais utilidade por causa da
+// altura_r(). Mesmo assim, seria melhor poder saber a altura de um nó
+// instantaneamente em vez de ter que calcular ela toda vez.
+//
 // Arruma altura do pai, avô, etc de n
-static void arruma_altura(struct no *n) {
-    struct no *aux = n;
-    while (aux->pai && aux->pai->h == aux->h) {
-        aux = aux->pai;
-        (aux->h)++;
-    }
-}
+// static void arruma_altura(struct No *n) {
+//     struct No *aux = n;
+//     while (aux->pai && aux->pai->h == aux->h) {
+//         aux = aux->pai;
+//         (aux->h)++;
+//     }
+// }
 
-static void balanceia_avl_r(struct avl_t *avl, struct no *x) {
+static void balanceia_avl_r(struct Avl *avl, struct No *x) {
+    // TODO: essa função aqui ¯\_(ツ)_/¯
     fprintf(stderr, "balanceia_avl() nao implementada\n");
     exit(69);
 
-    if (!x)
-        return;
-    
-    if (no_balanceado(x->dir) )
-        rot_esq(avl, x);
-    else if (no_balanceado(x->esq))
-        rot_dir(avl, x);
-    else
 
-    balanceia_avl_r(avl, x->pai);
+
 }
 
-int insere_avl(struct avl_t *avl, int chave) {
-    struct no *n = (struct no*)calloc(1, sizeof(struct no));
+int insere_avl(struct Avl *avl, int chave) {
+    struct No *n = (struct No*)calloc(1, sizeof(struct No));
     if (!n)
         return 0;
 
     n->chave = chave;
-    n->h = 0;
     n->pai = NULL;
     n->esq = NULL;
     n->dir = NULL;
@@ -140,7 +141,7 @@ int insere_avl(struct avl_t *avl, int chave) {
 
     insere_r(avl->raiz, n);
 
-    arruma_altura(n);
+    /* arruma_altura(n); */
 
     balanceia_avl(n->pai);
 
@@ -148,7 +149,7 @@ int insere_avl(struct avl_t *avl, int chave) {
 }
 
 // Libera os nós no formato pós-ordem (esq, dir, raiz)
-static void libera_no_r(struct no *n) {
+static void libera_no_r(struct No *n) {
     if (!n)
         return;
     libera_no_r(n->esq);
@@ -156,7 +157,7 @@ static void libera_no_r(struct no *n) {
     free(n);
 }
 
-struct avl_t *destroi_avl(struct avl_t *avl) {
+struct Avl *destroi_avl(struct Avl *avl) {
     libera_no_r(avl->raiz);
     free(avl);
     return NULL;
