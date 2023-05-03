@@ -3,6 +3,7 @@
 
 struct No {
     int chave;
+    int h;
     struct No *pai;
     struct No *esq;
     struct No *dir;
