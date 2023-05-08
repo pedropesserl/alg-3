@@ -22,8 +22,12 @@ int avl_vazia(struct Avl *avl);
 void imprime_em_ordem(struct Avl *avl);
 
 // Insere um nó com a chave chave na AVL e arruma o balanceamento da árvore.
-// Retorna 1 se a operação foi bem-sucedida e 0 caso contrário.
+// Retorna 1 se a operação foi bem-sucedida e 0 caso haja erro de memória.
 int insere_avl(struct Avl *avl, int chave);
+
+// Exclui o nó com a chave chave da AVL e arruma o balanceamento da árvore.
+// Se o nó não estiver na árvore, não faz nada.
+void exclui_avl(struct Avl *avl, int chave);
 
 // Remove todos os elementos da AVL, libera espaço e retorna NULL.
 struct Avl *destroi_avl(struct Avl *avl);

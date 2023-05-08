@@ -27,6 +27,27 @@ void imprime_em_ordem(struct Avl *avl) {
     em_ordem_r(avl->raiz, 0);
 }
 
+
+// Retorna um ponteiro para o nó da subárvore enraizada em n que contém a
+// chave chave. Se não houver, retorna NULL.
+static struct No *bb_r(struct No *n, int chave) {
+    if (!n)
+        return NULL;
+    if (chave < n->chave)
+        return bb_r(n->esq);
+    if (chave > n->chave)
+        return bb_r(n->dir);
+    return n;
+}
+
+// Retorna um ponteiro para o nó com a menor chave da subárvore enraizada em n.
+static struct No *minimo(struct No *n) {
+    struct No *min = n;
+    while (min->esq)
+        min = min->esq;
+    return min;
+}
+
 // Calcula e devole a altura de um nó n da árvore. Considera que um nó sem
 // filhos tem altura 0, e consequentemente um NULL tem altura -1.
 static int altura_r(struct No *n) {
@@ -148,6 +169,52 @@ int insere_avl(struct Avl *avl, int chave) {
     balanceia_avl_r(avl, n->pai);
 
     return 1;
+}
+
+void exclui_avl(struct Avl *avl, int chave) {
+    struct No *n = bb_r(avl->raiz, chave);
+    if (!n)
+        return;
+
+    if (!n->esq && !n->dir) {        // n não tem filhos
+        if (n == avl->raiz) {
+            free(n);
+            free(avl);
+            return;
+        }
+        if (n == n->pai->esq)
+            n->pai->esq = NULL;
+        else
+            n->pai->dir = NULL;
+        free(n);
+    }
+
+    if (n->esq && !n->dir) {         // somente filho esquerdo
+        n->esq->pai = n->pai;
+        if (n == n->pai->esq)
+            n->pai->esq = n->esq;
+        else
+            n->pai->dir = n->esq;
+        free(n);
+    }
+
+    if (!n->esq && n->dir) {         // somente filho direito
+        n->dir->pai = n->pai;
+        if (n == n->pai->esq)
+            n->pai->esq = n->dir;
+        else
+            n->pai->dir = n->dir;
+        free(n);
+    }
+
+    if (n->esq && n->dir) {          // dois filhos
+        struct No *sucessor = minimo(n->dir);
+        
+
+    }
+    
+    // depois de remover, balanceia
+    
 }
 
 // Libera os nós no formato pós-ordem (esq, dir, raiz)
