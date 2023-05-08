@@ -3,10 +3,8 @@
 
 struct No {
     int chave;
-    int h;
-    struct No *pai;
-    struct No *esq;
-    struct No *dir;
+    /* int h; */
+    struct No *pai, *esq, *dir;
 };
 
 struct Avl {
