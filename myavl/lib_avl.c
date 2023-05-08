@@ -133,12 +133,12 @@ static void balanceia_avl_r(struct Avl *avl, struct No *x) {
     if (!x)
         return;
     if (!no_balanceado(x)) {
-        if (balanceamento(x) == -2) {       // pendendo para a esquerda
-            if (balanceamento(x->dir) > 0)  // zig-zag
+        if (balanceamento(x) == -2) {          // pendendo para a esquerda
+            if (balanceamento(x->dir) > 0)     // zig-zag
                 x->dir = rot_dir(avl, x->dir);
             x = rot_esq(avl, x);
-        } else {                            // pendendo para a direita
-            if (balanceamento(x->esq) < 0)  // zig-zag
+        } else {                               // pendendo para a direita
+            if (balanceamento(x->esq) < 0)     // zig-zag
                 x->esq = rot_esq(avl, x->esq);
             x = rot_dir(avl, x);
         }
@@ -186,35 +186,45 @@ void exclui_avl(struct Avl *avl, int chave) {
             n->pai->esq = NULL;
         else
             n->pai->dir = NULL;
-        free(n);
-    }
 
-    if (n->esq && !n->dir) {         // somente filho esquerdo
-        n->esq->pai = n->pai;
-        if (n == n->pai->esq)
-            n->pai->esq = n->esq;
-        else
-            n->pai->dir = n->esq;
-        free(n);
-    }
+    } else if (!n->dir) {            // somente filho esquerdo
+        if (n == avl->raiz)
+            avl->raiz = n->esq;
+        else {
+            n->esq->pai = n->pai;
+            if (n == n->pai->esq)
+                n->pai->esq = n->esq;
+            else
+                n->pai->dir = n->esq;
+        }
 
-    if (!n->esq && n->dir) {         // somente filho direito
-        n->dir->pai = n->pai;
-        if (n == n->pai->esq)
-            n->pai->esq = n->dir;
-        else
-            n->pai->dir = n->dir;
-        free(n);
-    }
+    } else if (!n->esq) {            // somente filho direito
+        if (n == avl->raiz)
+            avl->raiz = n->dir;
+        else {
+            n->dir->pai = n->pai;
+            if (n == n->pai->esq)
+                n->pai->esq = n->dir;
+            else
+                n->pai->dir = n->dir;
+        }
 
-    if (n->esq && n->dir) {          // dois filhos
+    } else {                        // dois filhos
         struct No *sucessor = minimo(n->dir);
-        
+        if (n == avl->raiz)
+            avl->raiz = sucessor;
+        else {
+            sucessor->pai = n->pai;
+            sucessor->esq = n->esq;
+            sucessor->dir = n->dir;
+        }
+
 
     }
     
     // depois de remover, balanceia
-    
+ 
+    free(n);
 }
 
 // Libera os nós no formato pós-ordem (esq, dir, raiz)

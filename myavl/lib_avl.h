@@ -26,6 +26,7 @@ void imprime_em_ordem(struct Avl *avl);
 int insere_avl(struct Avl *avl, int chave);
 
 // Exclui o nó com a chave chave da AVL e arruma o balanceamento da árvore.
+// Substitui pelo sucessor, se houver.
 // Se o nó não estiver na árvore, não faz nada.
 void exclui_avl(struct Avl *avl, int chave);
 
