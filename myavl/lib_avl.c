@@ -34,9 +34,9 @@ static struct No *bb_r(struct No *n, int chave) {
     if (!n)
         return NULL;
     if (chave < n->chave)
-        return bb_r(n->esq);
+        return bb_r(n->esq, chave);
     if (chave > n->chave)
-        return bb_r(n->dir);
+        return bb_r(n->dir, chave);
     return n;
 }
 
@@ -133,12 +133,12 @@ static void balanceia_avl_r(struct Avl *avl, struct No *x) {
     if (!x)
         return;
     if (!no_balanceado(x)) {
-        if (balanceamento(x) == -2) {          // pendendo para a esquerda
-            if (balanceamento(x->dir) > 0)     // zig-zag
+        if (balanceamento(x) == -2) {    // pendendo para a esquerda
+            if (balanceamento(x->dir) > 0)    // zig-zag
                 x->dir = rot_dir(avl, x->dir);
             x = rot_esq(avl, x);
-        } else {                               // pendendo para a direita
-            if (balanceamento(x->esq) < 0)     // zig-zag
+        } else {                        // pendendo para a direita
+            if (balanceamento(x->esq) < 0)    // zig-zag
                 x->esq = rot_esq(avl, x->esq);
             x = rot_dir(avl, x);
         }
@@ -176,7 +176,8 @@ void exclui_avl(struct Avl *avl, int chave) {
     if (!n)
         return;
 
-    if (!n->esq && !n->dir) {        // n não tem filhos
+    // n não tem filhos
+    if (!n->esq && !n->dir) {
         if (n == avl->raiz) {
             free(n);
             free(avl);
@@ -186,43 +187,77 @@ void exclui_avl(struct Avl *avl, int chave) {
             n->pai->esq = NULL;
         else
             n->pai->dir = NULL;
+        balanceia_avl_r(avl, n->pai);
+        free(n);
+        return;
+    }
 
-    } else if (!n->dir) {            // somente filho esquerdo
+    // somente filho esquerdo
+    if (!n->dir) {
         if (n == avl->raiz)
             avl->raiz = n->esq;
         else {
-            n->esq->pai = n->pai;
             if (n == n->pai->esq)
                 n->pai->esq = n->esq;
             else
                 n->pai->dir = n->esq;
         }
+        n->esq->pai = n->pai;
+        balanceia_avl_r(avl, n->pai);
+        free(n);
+        return;
+    }
 
-    } else if (!n->esq) {            // somente filho direito
+    // somente filho direito
+    if (!n->esq) {
         if (n == avl->raiz)
             avl->raiz = n->dir;
         else {
-            n->dir->pai = n->pai;
             if (n == n->pai->esq)
                 n->pai->esq = n->dir;
             else
                 n->pai->dir = n->dir;
         }
+        n->dir->pai = n->pai;
+        balanceia_avl_r(avl, n->pai);
+        free(n);
+        return;
+    }
 
-    } else {                        // dois filhos
-        struct No *sucessor = minimo(n->dir);
+    // dois filhos
+    struct No *sucessor = minimo(n->dir);
+    struct No *pai_ant = sucessor->pai;
+    
+    if (pai_ant == n) {
         if (n == avl->raiz)
             avl->raiz = sucessor;
         else {
-            sucessor->pai = n->pai;
-            sucessor->esq = n->esq;
-            sucessor->dir = n->dir;
+            if (n == n->pai->esq)
+                n->pai->esq = sucessor;
+            else
+                n->pai->dir = sucessor;
         }
-
-
+        sucessor->pai = n->pai;
+        sucessor->esq = n->esq;
+        balanceia_avl_r(avl, sucessor);
+    } else {
+        // o sucessor pode ter, no máximo, um filho (direito), sem netos.
+        if (sucessor->dir)
+            sucessor->dir->pai = sucessor->pai;
+        sucessor->pai->esq = sucessor->dir;
+        sucessor->esq = n->esq;
+        sucessor->dir = n->dir;
+        if (n == avl->raiz)
+            avl->raiz = sucessor;
+        else {
+            if (n == n->pai->esq)
+                n->pai->esq = sucessor;
+            else
+                n->pai->dir = sucessor;
+        }
+        sucessor->pai = n->pai;
+        balanceia_avl_r(avl, pai_ant);
     }
-    
-    // depois de remover, balanceia
  
     free(n);
 }
