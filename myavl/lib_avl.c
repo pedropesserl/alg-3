@@ -41,11 +41,11 @@ static struct No *bb_r(struct No *n, int chave) {
 }
 
 // Retorna um ponteiro para o nó com a menor chave da subárvore enraizada em n.
-static struct No *minimo(struct No *n) {
-    struct No *min = n;
-    while (min->esq)
-        min = min->esq;
-    return min;
+static struct No *maximo(struct No *n) {
+    struct No *max = n;
+    while (max->dir)
+        max = max->dir;
+    return max;
 }
 
 // Calcula e devole a altura de um nó n da árvore. Considera que um nó sem
@@ -225,24 +225,24 @@ void exclui_avl(struct Avl *avl, int chave) {
     }
 
     // dois filhos
-    struct No *suc = minimo(n->dir);
-    n->chave = suc->chave;
+    struct No *ant = maximo(n->esq);
+    n->chave = ant->chave;
 
-    // o sucessor pode ter, no máximo, um filho (da direita), sem netos.
-    if (!suc->dir) {
-        if (suc == suc->pai->esq)
-            suc->pai->esq = NULL;
+    // o antecessor pode ter, no máximo, um filho (da esquerda), sem netos.
+    if (!ant->esq) {
+        if (ant == ant->pai->esq)
+            ant->pai->esq = NULL;
         else
-            suc->pai->dir = NULL;
+            ant->pai->dir = NULL;
     } else {
-        if (suc == suc->pai->esq)
-            suc->pai->esq = suc->dir;
+        if (ant == ant->pai->esq)
+            ant->pai->esq = ant->dir;
         else
-            suc->pai->dir = suc->dir;
-        suc->dir->pai = suc->pai;
+            ant->pai->dir = ant->dir;
+        ant->esq->pai = ant->pai;
     }
-    balanceia_avl_r(avl, suc->pai);
-    free(suc);
+    balanceia_avl_r(avl, ant->pai);
+    free(ant);
 }
 
 // Libera os nós no formato pós-ordem (esq, dir, raiz)
