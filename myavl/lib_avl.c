@@ -225,41 +225,24 @@ void exclui_avl(struct Avl *avl, int chave) {
     }
 
     // dois filhos
-    struct No *sucessor = minimo(n->dir);
-    struct No *pai_ant = sucessor->pai;
-    
-    if (pai_ant == n) {
-        if (n == avl->raiz)
-            avl->raiz = sucessor;
-        else {
-            if (n == n->pai->esq)
-                n->pai->esq = sucessor;
-            else
-                n->pai->dir = sucessor;
-        }
-        sucessor->pai = n->pai;
-        sucessor->esq = n->esq;
-        balanceia_avl_r(avl, sucessor);
+    struct No *suc = minimo(n->dir);
+    n->chave = suc->chave;
+
+    // o sucessor pode ter, no máximo, um filho (da direita), sem netos.
+    if (!suc->dir) {
+        if (suc == suc->pai->esq)
+            suc->pai->esq = NULL;
+        else
+            suc->pai->dir = NULL;
     } else {
-        // o sucessor pode ter, no máximo, um filho (direito), sem netos.
-        if (sucessor->dir)
-            sucessor->dir->pai = sucessor->pai;
-        sucessor->pai->esq = sucessor->dir;
-        sucessor->esq = n->esq;
-        sucessor->dir = n->dir;
-        if (n == avl->raiz)
-            avl->raiz = sucessor;
-        else {
-            if (n == n->pai->esq)
-                n->pai->esq = sucessor;
-            else
-                n->pai->dir = sucessor;
-        }
-        sucessor->pai = n->pai;
-        balanceia_avl_r(avl, pai_ant);
+        if (suc == suc->pai->esq)
+            suc->pai->esq = suc->dir;
+        else
+            suc->pai->dir = suc->dir;
+        suc->dir->pai = suc->pai;
     }
- 
-    free(n);
+    balanceia_avl_r(avl, suc->pai);
+    free(suc);
 }
 
 // Libera os nós no formato pós-ordem (esq, dir, raiz)

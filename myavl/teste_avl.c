@@ -12,7 +12,7 @@ int main() {
     exclui_avl(avl, 7);
     exclui_avl(avl, 8);
 
-    /* exclui_avl(avl, 3); */
+    exclui_avl(avl, 10);
     /* exclui_avl(avl, 9); */
 
     /* if (!insere_avl(avl, 10)) { */
