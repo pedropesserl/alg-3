@@ -58,15 +58,6 @@ static int altura_r(struct No *n) {
     return e > d ? e+1 : d+1;
 }
 
-// Arruma altura do pai, avô, etc de n
-/* static void arruma_altura(struct No *n) { */
-/*     struct No *aux = n; */
-/*     while (aux->pai && aux->pai->h == aux->h) { */
-/*         aux = aux->pai; */
-/*         (aux->h)++; */
-/*     } */
-/* } */
-
 static int balanceamento(struct No *n) {
     return altura_r(n->esq) - altura_r(n->dir);
 }
@@ -152,7 +143,6 @@ int insere_avl(struct Avl *avl, int chave) {
         return 0;
 
     n->chave = chave;
-    /* n->h = 0; */
     n->pai = NULL;
     n->esq = NULL;
     n->dir = NULL;
@@ -163,8 +153,6 @@ int insere_avl(struct Avl *avl, int chave) {
     }
 
     insere_r(avl->raiz, n);
-
-    /* arruma_altura(n); */
 
     balanceia_avl_r(avl, n->pai);
 
