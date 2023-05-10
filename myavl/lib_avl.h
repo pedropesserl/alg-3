@@ -13,9 +13,6 @@ struct Avl {
 // Cria uma AVL vazia e a retorna; se falhar retorna NULL.
 struct Avl *cria_avl();
 
-// Retorna 1 se a AVL está vazia e 0 caso contrário.
-int avl_vazia(struct Avl *avl);
-
 // Imprime os elementos da árvore em ordem (esq, raiz, dir), juntamente com o
 // nível da árvore em que o elemento se encontra.
 void imprime_em_ordem(struct Avl *avl);

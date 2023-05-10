@@ -11,10 +11,6 @@ struct Avl *cria_avl() {
     return avl;
 }
 
-int avl_vazia(struct Avl *avl) {
-    return avl->raiz == NULL;
-}
-
 static void em_ordem_r(struct No *n, int nivel) {
     if (!n)
         return;
@@ -40,7 +36,7 @@ static struct No *bb_r(struct No *n, int chave) {
     return n;
 }
 
-// Retorna um ponteiro para o nó com a menor chave da subárvore enraizada em n.
+// Retorna um ponteiro para o nó com a maior chave da subárvore enraizada em n.
 static struct No *maximo(struct No *n) {
     struct No *max = n;
     while (max->dir)
@@ -147,13 +143,12 @@ int insere_avl(struct Avl *avl, int chave) {
     n->esq = NULL;
     n->dir = NULL;
 
-    if (avl_vazia(avl)) {
+    if (!avl->raiz) {
         avl->raiz = n;
         return 1;
     }
 
     insere_r(avl->raiz, n);
-
     balanceia_avl_r(avl, n->pai);
 
     return 1;
