@@ -6,7 +6,7 @@ Esse é um trabalho desenvolvido para a disciplina CI1057 - Algoritmos e Estrutu
 
 ### Estruturas de dados utilizadas:
 
-A AVL foi implementada usando as seguintes estruturas, definidas na biblioteca lib_avl.h:
+A AVL foi implementada usando as seguintes estruturas, definidas na biblioteca libavl.h:
 
 - Nó da árvore: contém uma chave de busca e três ponteiros para nó: o pai, o filho esquerdo e o filho direito
 ```c
@@ -25,7 +25,7 @@ struct Avl {
 
 ### Bibliotecas desenvolvidas:
 
-A biblioteca desenvolvida para o trabalho foi a lib_avl.[hc], que define as structs acima, além das seguintes funções:
+A biblioteca desenvolvida para o trabalho foi a libavl.[hc], que define as structs acima, além das seguintes funções:
 - `struct Avl *cria_avl();`
     - Cria uma AVL vazia e a retorna; se falhar retorna NULL.
 
