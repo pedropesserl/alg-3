@@ -39,4 +39,4 @@ int exclui_chash(struct Hash *hash, int k);
 // seguido pela posição da chave na tabela (valor [0..10]).
 void imprime_chash(struct Hash *hash);
 
-#endif
+#endif // LIBCHASH_H_

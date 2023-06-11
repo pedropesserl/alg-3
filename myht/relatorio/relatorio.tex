@@ -1,0 +1,113 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[top=3cm, bottom=3cm, left = 2cm, right = 2cm]{geometry}
+\usepackage[brazilian]{babel}
+\usepackage{setspace}
+\usepackage{graphicx}
+% \usepackage{mathtool}
+
+\title{Relatório: Trabalho 2 - Cuckoo Hashing}
+\author{Pedro Folloni Pesserl\\
+\textit{Departamento de Informática}\\
+\textit{Universidade Federal do Paraná - UFPR}\\
+Curitiba, Brasil\\
+\texttt{pfp22@inf.ufpr.br}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\begin{singlespace}
+Este relatório documenta o software desenvolvido para o segundo trabalho prático da
+disciplina CI1057 - Algoritmos e Estruturas de Dados 3, do Departamento de Informática
+da UFPR. O programa é uma implementação em linguagem C da busca, inclusão e exclusão
+de valores em uma tabela hash de endereçamento aberto, simulando o algoritmo de
+Cuckoo Hash.
+\end{singlespace}
+\end{abstract}
+
+\section{Estruturas de dados utilizadas}
+A tabela hash foi implementada usando as seguintes estruturas, definidas na biblioteca
+\texttt{libchash.h}:
+\begin{itemize}
+    \item Entrada da tabela: contém uma chave de busca e uma variável que especifica se
+        a entrada está vazia ou não.
+    \begin{verbatim}
+struct Entrada {
+    int chave, vazia;
+};
+    \end{verbatim}
+
+    \item Tabela Hash: contém dois vetores de Entradas, um para cada tabela do Cuckoo
+        Hash (OBS: \texttt{TABLESIZE} é um macro, definido nessa implementação como 11).
+    \begin{verbatim}
+struct Hash {
+    struct Entrada t1[TABLESIZE], t2[TABLESIZE];
+};
+    \end{verbatim}
+\end{itemize}
+
+\section{Bibliotecas desenvolvidas}
+A biblioteca desenvolvida para o trabalho foi a \texttt{libchash.[hc]}, que define as
+structs acima, além das seguintes funções (considere, para as funções a seguir,
+$m = \texttt{TABLESIZE}$):
+\begin{itemize}
+    \item \texttt{int h1(int k);} -- Função hash para a tabela 1, dada por
+        $h_1(k) = k \bmod m$.
+    \item \texttt{int h2(int k);} -- Função hash para a tabela 2, dada por 
+        $h_2(k) = \lfloor m(0,9k - \lfloor 0,9k \rfloor) \rfloor$.
+    \item \texttt{int busca\_chash(struct Hash *hash, int k);} -- Busca uma chave na
+        tabela. Se a posição $h_1(\texttt{k})$ na tabela 1 estiver vazia, checa a
+        posição $h_2(\texttt{k})$ da tabela 2 (veja detalhes sobre esse comportamento
+        na seção 3, adiante). Se a chave não estiver em nenhuma das tabelas, retorna
+        -1. Se estiver na tabela 1, retorna a posição (um inteiro $\texttt{i} \in
+        [0..10]$). Se estiver na tabela 2, retorna a posição mais $m$ (um inteiro
+        $\texttt{j} \in [11..21]$). Esses valores foram escolhidos para facilitar a
+        interpretação do resultado em um possível uso da função de busca.
+    \item \texttt{int insere\_chash(struct Hash *hash, int k);} -- Insere uma chave na
+        tabela. Se a inserção ocorrer normalmente, retorna 0. Se houver tentativa de
+        inserir um valor duplicado, não faz nada e retorna 1. Se o valor não puder ser
+        inserido (colisão na tabela 2), não faz nada e retorna 2.
+    \item \texttt{int exclui\_chash(struct Hash *hash, int k);} -- Exclui um valor da
+        tabela hash, seja da tabela 1 ou da tabela 2. Na prática, a posição na tabela é
+        marcada como vazia. Se a exclusão ocorrer normalmente, retorna 0. Se a chave
+        \texttt{k} não estiver na tabela, não faz nada e retorna 1.
+    \item \texttt{void imprime\_chash(struct Hash *hash);} -- Imprime as chaves
+        armazenadas na tabela em ordem crescente, juntamente com a tabela na qual a
+        chave \texttt{k} se encontra (\texttt{T1} ou \texttt{T2}), seguido pela posição
+        da chave na tabela (inteiro $\texttt{i} \in [0..10]$). A saída segue o formato
+        \texttt{k,T[1|2],i}.
+
+        OBS: Para realizar a impressão em ordem, foi usada a função qsort, da biblioteca
+        padrão da linguagem C. Para tanto, foi desenvolvida uma nova estrutura,
+        \texttt{Entrada\_id}:
+        \begin{verbatim}
+struct Entrada_id {
+    int chave, vazia, tabela, pos;
+};
+        \end{verbatim}
+        Dessa forma, é criado um vetor com as entradas das duas tabelas, e esse
+        vetor é ordenado pelas chaves das estruturas. Depois, as entradas não vazias
+        são impressas seguindo o formato acima.
+\end{itemize}
+
+\section{Decisão pelos campos definidos na estrutura \texttt{Entrada}}
+Inicialmente, a estrutura \texttt{Entrada} continha três campos: \texttt{chave},
+\texttt{vazia} e \texttt{excluida}. Esse último servia para determinar se uma entrada
+havia sido excluída após ser inserida. Isso porque, na função de busca, se a posição
+de uma chave na tabela 1 estivesse vazia, a função retornava -1 imediatamente, mas
+pode ser necessário checar a tabela 2 também.
+
+Porém, esse campo só era útil na tabela 1, e seria inutilizado na tabela 2; além disso,
+essa característica só faz diferença no comportamento da função de busca considerando
+as primeiras vezes que a tabela é utilizada: após várias inserções e remoções, todas
+as posições da tabela 1 serão marcadas como não-vazias, e a função checará a tabela 2
+de qualquer maneira.
+
+Então, em lugar de criar duas estruturas diferentes (uma para a tabela 1, com os três
+campos, e outra para a tabela 2, com apenas dois), e considerando que a função de busca
+não perde grande desempenho checando as duas tabelas em toda execução, foi decidido
+usar apenas os campos \texttt{chave} e \texttt{vazia}. Isso torna a implementação mais
+simples e ajuda na legibilidade do código.
+
+\end{document}
