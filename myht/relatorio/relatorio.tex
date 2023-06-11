@@ -52,6 +52,8 @@ A biblioteca desenvolvida para o trabalho foi a \texttt{libchash.[hc]}, que defi
 structs acima, além das seguintes funções (considere, para as funções a seguir,
 $m = \texttt{TABLESIZE}$):
 \begin{itemize}
+    \item \texttt{struct Hash cria\_tabela();} -- Cria uma tabela hash e marca todas as
+        entradas como vazias.
     \item \texttt{int h1(int k);} -- Função hash para a tabela 1, dada por
         $h_1(k) = k \bmod m$.
     \item \texttt{int h2(int k);} -- Função hash para a tabela 2, dada por 
