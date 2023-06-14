@@ -4,7 +4,7 @@
 #define TABLESIZE 11
 
 struct Entrada {
-    int chave, vazia;
+    int chave, vazia, delet;
 };
 
 struct Hash {

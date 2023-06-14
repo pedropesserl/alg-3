@@ -27,6 +27,7 @@ int busca_chash(struct Hash *hash, int k) {
     return h1(k);
 }
 
+#if 0
 int insere_chash(struct Hash *hash, int k) {
     if (hash->t1[h1(k)].vazia) {
         hash->t1[h1(k)].chave = k;
@@ -51,6 +52,30 @@ int insere_chash(struct Hash *hash, int k) {
     hash->t1[h1(k)].chave = k;
     return 0;
 }
+#else
+int insere_chash(struct Hash *hash, int k) {
+    if (hash->t1[h1(k)].vazia || hash->t1[h1(k)].delet) {
+        hash->t1[h1(k)].chave = k;
+        hash->t1[h1(k)].vazia = 0;
+        hash->t1[h1(k)].delet = 0;
+        return 0;
+    }
+    // houve colisão em T1
+    if (hash->t1[h1(k)].chave == k)
+        return 1; // valor repetido, não trataremos
+    if (hash->t2[h2(k)].vazia || hash->t2[h2(k)].delet) {
+        int j = hash->t1[h1(k)].chave;
+        hash->t2[h2(j)].chave = j;
+        hash->t2[h2(j)].vazia = 0;
+        hash->t2[h2(j)].delet = 0;
+        hash->t2[h1(k)].chave = k;
+        return 0;
+    }
+    if (hash->t2[h2(k)].chave == k)
+        return 1; // valor repetido, não trataremos
+    return 2; // colisão em T2, não trataremos
+}
+#endif
 
 int exclui_chash(struct Hash *hash, int k) {
     if (!hash->t1[h1(k)].vazia && hash->t1[h1(k)].chave == k) {
