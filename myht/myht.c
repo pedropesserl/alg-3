@@ -16,7 +16,6 @@ int main(void) {
             return 1;
         }
     }
-
     imprime_chash(&tabela);
 
     return 0;
