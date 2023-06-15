@@ -29,11 +29,11 @@ Cuckoo Hash.
 A tabela hash foi implementada usando as seguintes estruturas, definidas na biblioteca
 \texttt{libchash.h}:
 \begin{itemize}
-    \item Entrada da tabela: contém uma chave de busca e uma variável que especifica se
-        a entrada está vazia ou não.
+    \item Entrada da tabela: contém uma chave de busca, uma variável que especifica se
+        a entrada está vazia ou não, e uma que especifica se a chave foi excluída.
     \begin{verbatim}
 struct Entrada {
-    int chave, vazia;
+    int chave, vazia, delet;
 };
     \end{verbatim}
 
@@ -80,35 +80,14 @@ $m = \texttt{TABLESIZE}$):
         \texttt{k,T[1|2],i}.
 
         OBS: Para realizar a impressão em ordem, foi usada a função qsort, da biblioteca
-        padrão da linguagem C. Para tanto, foi desenvolvida uma nova estrutura,
-        \texttt{Entrada\_id}:
-        \begin{verbatim}
-struct Entrada_id {
-    int chave, vazia, tabela, pos;
-};
-        \end{verbatim}
-        Dessa forma, é criado um vetor com as entradas das duas tabelas, e esse
-        vetor é ordenado pelas chaves das estruturas. Depois, as entradas não vazias
-        são impressas seguindo o formato acima.
+        padrão da linguagem C. Para tanto, foi desenvolvida uma nova função, definida
+        com a palavra-chave \texttt{static} (ou seja, que só pode ser acessada pelo
+        código da \texttt{libchash.c}):
+    \item \texttt{static int compara\_chaves(const void *a, const void *b);} -- Compara
+        duas estruturas \texttt{Entrada}, por meio do campo \texttt{chave}: retorna um
+        valor menor que, igual a, ou maior que 0 se a primeira chave for, respectivamente,
+        menor que, igual à, ou maior que a segunda.
 \end{itemize}
 
-\section{Decisão pelos campos definidos na estrutura \texttt{Entrada}}
-Inicialmente, a estrutura \texttt{Entrada} continha três campos: \texttt{chave},
-\texttt{vazia} e \texttt{excluida}. Esse último servia para determinar se uma entrada
-havia sido excluída após ser inserida. Isso porque, na função de busca, se a posição
-de uma chave na tabela 1 estivesse vazia, a função retornava -1 imediatamente, mas
-pode ser necessário checar a tabela 2 também.
-
-Porém, esse campo só era útil na tabela 1, e seria inutilizado na tabela 2; além disso,
-essa característica só faz diferença no comportamento da função de busca considerando
-as primeiras vezes que a tabela é utilizada: após várias inserções e remoções, todas
-as posições da tabela 1 serão marcadas como não-vazias, e a função checará a tabela 2
-de qualquer maneira.
-
-Então, em lugar de criar duas estruturas diferentes (uma para a tabela 1, com os três
-campos, e outra para a tabela 2, com apenas dois), e considerando que a função de busca
-não perde grande desempenho checando as duas tabelas em toda execução, foi decidido
-usar apenas os campos \texttt{chave} e \texttt{vazia}. Isso torna a implementação mais
-simples e ajuda na legibilidade do código.
 
 \end{document}
