@@ -37,7 +37,7 @@ struct Entrada {
 };
     \end{verbatim}
 
-    \item Tabela Hash: contém dois vetores de Entradas, um para cada tabela do Cuckoo
+\item Tabela Hash: contém dois vetores de \texttt{Entrada}, um para cada tabela do Cuckoo
         Hash (OBS: \texttt{TABLESIZE} é um macro, definido nessa implementação como 11).
     \begin{verbatim}
 struct Hash {
@@ -58,29 +58,40 @@ $m = \texttt{TABLESIZE}$):
     \item \texttt{int h2(int k);} -- Função hash para a tabela 2, dada por 
         $h_2(k) = \lfloor m(0,9k - \lfloor 0,9k \rfloor) \rfloor$.
     \item \texttt{int busca\_chash(struct Hash *hash, int k);} -- Busca uma chave na
-        tabela. Se a posição $h_1(\texttt{k})$ na tabela 1 estiver vazia, checa a
-        posição $h_2(\texttt{k})$ da tabela 2 (veja detalhes sobre esse comportamento
-        na seção 3, adiante). Se a chave não estiver em nenhuma das tabelas, retorna
-        -1. Se estiver na tabela 1, retorna a posição (um inteiro $\texttt{i} \in
-        [0..10]$). Se estiver na tabela 2, retorna a posição mais $m$ (um inteiro
-        $\texttt{j} \in [11..21]$). Esses valores foram escolhidos para facilitar a
-        interpretação do resultado em um possível uso da função de busca.
+        tabela. Utiliza o campo \texttt{delet} da \texttt{struct Entrada} para otimizar
+        o tempo de execução: se uma posição $h_1(\texttt{k})$ da tabela 1 está vazia
+        porque foi excluída, é necessário checar a posição $h_2(\texttt{k})$ da tabela
+        2, porque a chave que buscamos pode ter sido movida para lá. Caso a posição
+        esteja vazia e não tenha sido excluída, a função retorna imediatamente.
+
+        Se a chave não estiver em nenhuma das tabelas, retorna -1. Se estiver na tabela
+        1, retorna a posição (um inteiro $\texttt{i} \in [0..10]$). Se estiver na tabela
+        2, retorna a posição mais $m$ (um inteiro $\texttt{j} \in [11..21]$). Esses
+        valores foram escolhidos para facilitar a interpretação do resultado em um
+        possível uso da função de busca (veja \texttt{imprime\_chash} mais adiante).
     \item \texttt{int insere\_chash(struct Hash *hash, int k);} -- Insere uma chave na
         tabela. Se a inserção ocorrer normalmente, retorna 0. Se houver tentativa de
         inserir um valor duplicado, não faz nada e retorna 1. Se o valor não puder ser
         inserido (colisão na tabela 2), não faz nada e retorna 2.
     \item \texttt{int exclui\_chash(struct Hash *hash, int k);} -- Exclui um valor da
         tabela hash, seja da tabela 1 ou da tabela 2. Na prática, a posição na tabela é
-        marcada como vazia. Se a exclusão ocorrer normalmente, retorna 0. Se a chave
-        \texttt{k} não estiver na tabela, não faz nada e retorna 1.
+        marcada como vazia e excluída. Se a exclusão ocorrer normalmente, retorna 0.
+        Se a chave \texttt{k} não estiver na tabela, não faz nada e retorna 1.
     \item \texttt{void imprime\_chash(struct Hash *hash);} -- Imprime as chaves
         armazenadas na tabela em ordem crescente, juntamente com a tabela na qual a
         chave \texttt{k} se encontra (\texttt{T1} ou \texttt{T2}), seguido pela posição
         da chave na tabela (inteiro $\texttt{i} \in [0..10]$). A saída segue o formato
         \texttt{k,T[1|2],i}.
 
-        OBS: Para realizar a impressão em ordem, foi usada a função qsort, da biblioteca
-        padrão da linguagem C. Para tanto, foi desenvolvida uma nova função, definida
+        A ordenação das tabelas ocorre em um vetor de \texttt{Entrada} de tamanho
+        $2m$, que contém todas as entradas das duas tabelas; na impressão, foi usada
+        a função \texttt{busca\_chash} para decidir de onde veio a chave encontrada:
+        dados os valores de retorno, $\lfloor\texttt{busca\_chash(hash, k)} / m\rfloor + 1$
+        dá a tabela na qual a chave \texttt{k} se encontra, e
+        $\texttt{busca\_chash(hash, k)} \bmod m$ dá a posição da chave na tabela.
+        
+        Para realizar a ordenação foi utilizada a função qsort, da biblioteca padrão
+        da linguagem C. Para tanto, foi desenvolvida uma nova função, definida
         com a palavra-chave \texttt{static} (ou seja, que só pode ser acessada pelo
         código da \texttt{libchash.c}):
     \item \texttt{static int compara\_chaves(const void *a, const void *b);} -- Compara
@@ -88,6 +99,5 @@ $m = \texttt{TABLESIZE}$):
         valor menor que, igual a, ou maior que 0 se a primeira chave for, respectivamente,
         menor que, igual à, ou maior que a segunda.
 \end{itemize}
-
 
 \end{document}
